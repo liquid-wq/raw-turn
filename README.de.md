@@ -19,7 +19,10 @@ In den Optionen lässt sie sich stattdessen im Programmfenster anzeigen.
 
 ## Was du brauchst
 
-- Eine SAROO-Kartusche. Darauf entwickle und teste ich.
+- Eine SAROO-Kartusche. RAW-TURN wird auf der Platinenversion V1.66
+  (STM32H750) entwickelt und getestet. Andere Versionen mit demselben Chip und
+  den Pads J2 können funktionieren, sind aber ungetestet. Ältere Platinen mit
+  STM32F103 werden nicht unterstützt.
 - Eine originale Sega Saturn
 - Einen USB-Seriell-Adapter, auf 3,3 V eingestellt
 - Windows

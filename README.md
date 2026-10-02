@@ -17,7 +17,9 @@ Options you can show it inside the program window instead.
 
 ## What you need
 
-- A SAROO cartridge. This is what I develop and test on.
+- A SAROO cartridge. RAW-TURN is developed and tested on board revision
+  V1.66 (STM32H750). Other revisions with the same chip and the J2 pads may
+  work, but are untested. Older boards with an STM32F103 are not supported.
 - An original Sega Saturn
 - A USB-to-serial adapter set to 3.3 V
 - Windows
