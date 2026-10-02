@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAW-TURN — RetroAchievements on Real Sega Saturn Hardware via SAROO</title>
+<meta name="author" content="Liqui">
+<meta name="description" content="RAW-TURN brings RetroAchievements to real Sega Saturn hardware using the SAROO cartridge. No emulator, no disc patch. Every frame is read, save states included. Free to use.">
+<link rel="canonical" href="https://liquid-wq.github.io/raw-turn/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RAW-TURN">
+<meta property="og:title" content="RAW-TURN — RetroAchievements on Real Sega Saturn Hardware">
+<meta property="og:description" content="Earn RetroAchievements while playing on an actual Sega Saturn, with a SAROO cartridge and a serial adapter. No emulator, no disc patch.">
+<meta property="og:url" content="https://liquid-wq.github.io/raw-turn/">
+<meta property="og:image" content="https://liquid-wq.github.io/raw-turn/rawturn_poster.jpg">
+<meta property="og:image:alt" content="Sonic Jam on a real Sega Saturn next to the RAW-TURN program, with an achievement unlocking">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://liquid-wq.github.io/raw-turn/rawturn_poster.jpg">
+<meta name="twitter:title" content="RAW-TURN — RetroAchievements on Real Sega Saturn Hardware">
+<meta name="twitter:description" content="Earn RetroAchievements while playing on an actual Sega Saturn, with a SAROO cartridge.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070b;
+  --bg-card:#0a0e15;
+  --line:#172231;
+  --line-hot:#1f3a55;
+  --blue:#5cc8ff;           /* primary phosphor */
+  --blue-dim:#4a7a99;
+  --gold:#ffcf5c;           /* Saturn ring accent, used sparingly */
+  --ink:#d0d9e2;
+  --ink-dim:#6f8191;
+  --maxw:960px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:'JetBrains Mono',ui-monospace,'IBM Plex Mono',monospace;
+  font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  position:relative;overflow-x:hidden;
+}
+/* CRT scanlines */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9;
+  background:repeating-linear-gradient(
+    to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.28) 2px 3px);
+  mix-blend-mode:multiply;
+}
+/* subtle vignette */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:8;
+  background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.55) 100%);
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+/* ---------- markers ---------- */
+.eyebrow{
+  font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--blue-dim);margin:0;
+}
+.eyebrow .slash{color:var(--gold);font-weight:700}
+.eyebrow em{font-style:normal;color:var(--blue)}
+h2{
+  font-size:clamp(19px,3.2vw,26px);letter-spacing:.14em;text-transform:uppercase;
+  font-weight:500;color:var(--ink-dim);margin:52px 0 26px;
+}
+h2::before{content:'# ';color:var(--gold);font-weight:700}
+
+/* ---------- hero ---------- */
+.hero{padding:54px 0 20px}
+/* Logo: CRT-Einschalten einmalig, danach zieht ein goldener Lichtstreif wie
+   ein Ring ueber den Schriftzug. */
+.logo{
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(28px,7.4vw,64px);line-height:1.15;letter-spacing:.02em;
+  margin:22px 0 0;position:relative;display:inline-block;
+  color:var(--blue);
+  text-shadow:0 0 8px rgba(92,200,255,.55),0 0 26px rgba(92,200,255,.3);
+  animation:crt-on 1s cubic-bezier(.2,.7,.3,1) both,flicker 7s 1.1s infinite steps(1);
+}
+@keyframes crt-on{
+  0%{transform:scaleY(.012) scaleX(1.25);filter:brightness(3);opacity:0}
+  22%{transform:scaleY(.012) scaleX(1.25);filter:brightness(3);opacity:1}
+  55%{transform:scaleY(1) scaleX(1);filter:brightness(1.7)}
+  100%{transform:scaleY(1) scaleX(1);filter:brightness(1)}
+}
+@keyframes flicker{0%,96%,100%{opacity:1}97%{opacity:.82}98%{opacity:1}99%{opacity:.9}}
+
+/* Lichtstreif: zweite Ebene desselben Wortes, schraeg von links nach rechts. */
+.logo__ring{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,
+    transparent 0%,transparent 38%,
+    #ffcf5c 46%,#fff4d6 50%,#ffcf5c 54%,
+    transparent 62%,transparent 100%);
+  background-size:260% 100%;background-repeat:no-repeat;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  animation:ring 6.5s 1.4s cubic-bezier(.45,0,.55,1) infinite;
+  text-shadow:none;
+}
+@keyframes ring{
+  0%{background-position:120% 0;opacity:0}
+  8%{opacity:1}
+  46%{background-position:-20% 0;opacity:1}
+  54%{background-position:-20% 0;opacity:0}
+  100%{background-position:-20% 0;opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .logo{animation:none}
+  .logo__ring{display:none}
+}
+.lede{
+  font-size:clamp(17px,2.3vw,21px);line-height:1.75;max-width:52ch;margin:30px 0 0;
+}
+.lede b{color:var(--blue);font-weight:500}
+.lede .hot{color:var(--gold);font-weight:500}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;margin:34px 0 0}
+.btn{
+  display:inline-block;padding:14px 26px;text-decoration:none;font-size:15px;
+  border:1px solid var(--line-hot);color:var(--ink-dim);background:transparent;
+  transition:color .14s,border-color .14s,box-shadow .14s;
+}
+.btn:hover{color:var(--blue);border-color:var(--blue);box-shadow:0 0 14px rgba(92,200,255,.18)}
+.btn--go{color:var(--blue);border-color:var(--blue)}
+.btn--go:hover{box-shadow:0 0 20px rgba(92,200,255,.3)}
+
+/* ---------- signal diagram ---------- */
+.diagram{
+  margin:52px 0 0;border:1px solid var(--line);background:var(--bg-card);padding:20px 18px 8px;
+}
+.diagram__title{font-size:13px;color:var(--ink-dim);letter-spacing:.06em;margin:0 0 6px}
+.diagram svg{width:100%;height:auto;display:block}
+.lane-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;fill:var(--ink-dim);letter-spacing:.08em}
+.node-label{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--blue-dim);letter-spacing:.06em}
+.wire{stroke:var(--line-hot);stroke-width:1;fill:none}
+.wire--live{stroke:var(--blue);stroke-width:1;opacity:.55}
+.dot{fill:var(--blue)}
+.pulse{fill:var(--gold)}
+
+/* ---------- cards ---------- */
+.cards{display:grid;gap:16px;margin:28px 0 0}
+@media(min-width:740px){.cards--2{grid-template-columns:1fr 1fr}}
+.card{border:1px solid var(--line);background:var(--bg-card);padding:22px 22px 24px}
+.card h3{font-size:16px;color:var(--blue);font-weight:500;margin:0 0 10px;letter-spacing:.02em}
+.card p{margin:0;color:var(--ink-dim);font-size:14.5px;line-height:1.7}
+.card--hot{border-color:var(--line-hot)}
+.card--hot h3{color:var(--gold)}
+
+p.body{max-width:64ch;margin:0 0 22px}
+p.body b{color:var(--ink);font-weight:500}
+p.body a{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--line-hot)}
+p.body a:hover{border-color:var(--blue)}
+
+/* ---------- tag ---------- */
+.tag{
+  display:inline-block;border:1px solid var(--gold);color:var(--gold);
+  padding:7px 14px;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+  margin:44px 0 0;
+}
+
+/* ---------- spec ---------- */
+.spec{margin:0;border:1px solid var(--line);background:var(--bg-card)}
+.spec div{display:grid;grid-template-columns:180px 1fr;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line)}
+.spec div:last-child{border-bottom:none}
+.spec dt{margin:0;color:var(--ink-dim);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.spec dd{margin:0;font-size:15px;color:var(--ink)}
+@media(max-width:620px){.spec div{grid-template-columns:1fr;gap:2px}}
+
+/* ---------- download ---------- */
+.dl h3{font-size:17px;color:var(--gold);margin:0 0 12px;font-weight:500}
+.dl p{color:var(--ink-dim);font-size:14.5px;line-height:1.7;margin:0 0 18px}
+.dl p b{color:var(--ink);font-weight:500}
+.dl a{color:var(--blue);font-size:14.5px;text-decoration:none;border-bottom:1px solid var(--line-hot)}
+.dl a:hover{border-color:var(--blue)}
+
+figure{margin:26px 0 0}
+figure img{width:100%;border:1px solid var(--line);display:block;background:#fff}
+figure video{width:100%;border:1px solid var(--line);display:block;background:#000}
+figcaption{color:var(--ink-dim);font-size:13px;margin-top:12px}
+
+footer{border-top:1px solid var(--line);margin-top:70px;padding:38px 0 64px;color:var(--ink-dim);font-size:14.5px}
+footer p{max-width:64ch;margin:0 0 12px}
+footer a{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--line-hot)}
+footer a:hover{border-color:var(--blue)}
+
+  /* Zurueck zur Uebersicht, oben links */
+  .back{position:fixed;top:14px;left:16px;z-index:10;font-size:13px;letter-spacing:.06em;color:var(--blue-dim);text-decoration:none;border:1px solid var(--line-hot);background:rgba(5,7,11,.85);padding:6px 12px;transition:color .14s,border-color .14s}
+  .back:hover,.back:focus-visible{color:var(--blue);border-color:var(--blue)}
+</style>
+</head>
+<body>
+<a class="back" href="https://liquid-wq.github.io/" aria-label="Back to all projects">&larr; All projects</a>
+
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow"><span class="slash">//</span> <em>Sega Saturn</em> &middot; <em>SAROO</em> &middot; <em>RetroAchievements</em></p>
+    <h1 class="logo">RAW-TURN<span class="logo__ring" aria-hidden="true">RAW-TURN</span></h1>
+    <p class="lede">
+      RetroAchievements on <b>real Sega Saturn hardware</b> &mdash; no emulator, no disc
+      patch. A small addition to the SAROO firmware reads what an achievement set needs,
+      <span class="hot">every single frame</span>, and your PC evaluates it as the game runs.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn--go" href="https://github.com/liquid-wq/raw-turn/releases">Get RAW-TURN</a>
+      <a class="btn" href="https://github.com/liquid-wq/raw-turn">View on GitHub</a>
+      <a class="btn" href="#how">How it works</a>
+    </div>
+
+    <div class="diagram">
+      <p class="diagram__title">live signal path &mdash; one turn, one frame</p>
+      <svg viewBox="0 0 720 300" role="img" aria-label="An orbit around the Saturn: every frame a signal travels from the vertical blank hook through the SAROO's SDRAM to its STM32, and from there over a serial line to the PC. Save states are written to the SD card on the same ring.">
+        <g transform="rotate(-7 330 150)">
+          <!-- hintere Haelfte des Rings, liegt hinter dem Planeten -->
+          <path class="wire" d="M110 150 A220 72 0 0 1 550 150"/>
+        </g>
+
+        <!-- Planet: die Saturn, ihr Work RAM -->
+        <circle cx="330" cy="150" r="50" fill="#05070b" stroke="#5cc8ff" stroke-width="1" opacity=".9"/>
+        <path d="M288 134 Q330 128 372 134" class="wire" opacity=".7"/>
+        <path d="M282 152 Q330 146 378 152" class="wire" opacity=".7"/>
+        <path d="M288 170 Q330 164 372 170" class="wire" opacity=".7"/>
+        <text class="node-label" x="330" y="147" text-anchor="middle" style="fill:#5cc8ff">SATURN</text>
+        <text class="node-label" x="330" y="161" text-anchor="middle">WORK RAM</text>
+
+        <g transform="rotate(-7 330 150)">
+          <!-- vordere Haelfte, liegt vor dem Planeten -->
+          <path class="wire wire--live" d="M550 150 A220 72 0 0 1 110 150"/>
+
+          <!-- Stationen auf dem Ring -->
+          <circle class="dot" cx="110" cy="150" r="3"/>
+          <circle class="dot" cx="330" cy="78" r="3"/>
+          <circle class="dot" cx="550" cy="150" r="3"/>
+          <circle class="dot" cx="330" cy="222" r="3"/>
+
+          <!-- ein Umlauf je Bild -->
+          <circle class="pulse" r="3.5">
+            <animateMotion dur="3.6s" repeatCount="indefinite"
+              path="M110 150 A220 72 0 0 1 550 150 A220 72 0 0 1 110 150"/>
+          </circle>
+          <circle class="pulse" r="2" opacity=".45">
+            <animateMotion dur="3.6s" begin="-0.18s" repeatCount="indefinite"
+              path="M110 150 A220 72 0 0 1 550 150 A220 72 0 0 1 110 150"/>
+          </circle>
+        </g>
+
+        <!-- Beschriftungen, nicht mitgedreht -->
+        <text class="lane-label" x="100" y="172" text-anchor="end">V-BLANK HOOK</text>
+        <text class="node-label" x="100" y="186" text-anchor="end">every frame</text>
+        <text class="lane-label" x="321" y="50" text-anchor="middle">SAROO SDRAM</text>
+        <text class="node-label" x="321" y="64" text-anchor="middle">every change, as a record</text>
+        <text class="lane-label" x="572" y="96">STM32</text>
+        <text class="node-label" x="572" y="84">SAROO</text>
+        <text class="lane-label" x="339" y="250" text-anchor="middle">PAD CHECK</text>
+        <text class="node-label" x="339" y="264" text-anchor="middle">L + R + DOWN saves a state to SD</text>
+
+        <!-- hinaus zum PC -->
+        <path class="wire wire--live" d="M548 123 L640 123"/>
+        <circle class="pulse" cy="123" r="3">
+          <animate attributeName="cx" values="548;640" dur="1.2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;1;1;0" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <text class="node-label" x="586" y="138">SERIAL</text>
+        <rect x="640" y="101" width="70" height="44" fill="none" stroke="#1f3a55"/>
+        <text class="node-label" x="675" y="127" text-anchor="middle" style="fill:#5cc8ff">PC</text>
+      </svg>
+      <p class="diagram__title" style="margin:2px 0 10px">the disc image is never changed</p>
+    </div>
+  </section>
+
+  <section id="what">
+    <h2>What it is</h2>
+    <p class="body">
+      RAW-TURN connects a physical Sega Saturn, a SAROO cartridge and RetroAchievements.
+      Achievements trigger from the actual console state, read from the Saturn's work RAM
+      while you play. <b>The game's disc image is never changed.</b>
+    </p>
+  </section>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <p class="body">
+      The Saturn's work RAM is not reachable from the cartridge slot, so nothing can simply
+      listen in. Instead, a small addition to the SAROO firmware hooks in after the game's
+      own vertical blank routine. Once per frame it reads the addresses the achievement set
+      needs and hands every change to the SAROO, which passes it to your PC over a serial
+      line. <b>The PC evaluates the achievement conditions frame by frame.</b>
+    </p>
+
+    <div class="cards cards--2">
+      <div class="card">
+        <h3>Every frame, not now and then</h3>
+        <p>Every change of every watched address is recorded, frame by frame. A value that
+        holds for a single frame is still seen, so achievements that hinge on a short moment
+        unlock as they should.</p>
+      </div>
+      <div class="card">
+        <h3>The game names itself</h3>
+        <p>When the SAROO loads a disc image, it reports the disc header to the PC. The
+        program works out the game and its RetroAchievements set from that. Nothing to
+        select, no folder to point at.</p>
+      </div>
+      <div class="card">
+        <h3>One click on the SD card</h3>
+        <p>The program takes the official SAROO firmware v0.9 and applies its patches on
+        your PC, from your card or straight from the SAROO release page. It ships no SAROO
+        files itself. The FPGA stays the official one, so there is no firmware update to
+        run, and <b>Restore original</b> puts back what was there before.</p>
+      </div>
+      <div class="card card--hot">
+        <h3>Save states, no menu in the way</h3>
+        <p>L + R + Down saves a quick state at once; the last ten are kept. Four more slots,
+        and loading of every state, are in the program window, with date, time and play
+        time. There is no in-game menu on purpose: drawing over a running Saturn game can
+        hang it, and RAW-TURN must never do that.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="wiring">
+    <h2>Wiring</h2>
+    <p class="body">
+      A USB-to-serial adapter set to 3.3 V goes onto the five pads marked
+      <b>G C D T R</b> on the SAROO board: G to ground, T to the adapter's RXD, R to the
+      adapter's TXD. C and D stay free. The full guide is in
+      <a href="https://github.com/liquid-wq/raw-turn/blob/main/docs/WIRING.md">WIRING.md</a>.
+    </p>
+    <figure>
+      <img src="j2_wiring.svg" alt="Wiring of the USB serial adapter to the pads G, T and R on the SAROO board">
+      <figcaption>G to GND, T to RXD, R to TXD &mdash; the Saturn powers the SAROO, the adapter's VCC stays unconnected</figcaption>
+    </figure>
+  </section>
+
+  <section id="hardcore">
+    <p class="tag">Hardcore mode</p>
+    <h2>Not available yet</h2>
+    <p class="body">
+      Every unlock is recorded as Softcore.
+    </p>
+  </section>
+
+  <section id="limits">
+    <h2>Known limits</h2>
+    <p class="body">
+      A save state restores work RAM and video memory, but not the sound processor and not
+      the state of the CD emulation. Loading works best within the same scene of a game.
+      The first time a game runs, the program prepares it; the achievements count from the
+      next start of that game on.
+    </p>
+  </section>
+
+  <section id="requirements">
+    <h2>Requirements</h2>
+    <dl class="spec">
+      <div><dt>Cartridge</dt><dd>SAROO</dd></div>
+      <div><dt>Console</dt><dd>Original Sega Saturn hardware</dd></div>
+      <div><dt>Connection</dt><dd>USB-to-serial adapter, 3.3 V, on the SAROO board</dd></div>
+      <div><dt>Platform</dt><dd>Windows</dd></div>
+      <div><dt>Account</dt><dd>Free RetroAchievements account</dd></div>
+    </dl>
+  </section>
+
+  <section id="download">
+    <h2>Download</h2>
+    <div class="cards">
+      <div class="card card--hot dl">
+        <h3>RAW-TURN</h3>
+        <p><b>Unpack, double-click, done.</b> A single executable, nothing to install.
+        Firmware patcher, automatic game detection, achievement list, unlock card with
+        badge, save states, live values, English and German.</p>
+        <a href="https://github.com/liquid-wq/raw-turn/releases">Latest release ›</a>
+      </div>
+    </div>
+    <p class="body" style="margin-top:24px">Setup instructions are on GitHub.</p>
+  </section>
+
+  <section id="running">
+    <h2>See it running</h2>
+    <p class="body">
+      A real Saturn with a SAROO and the serial adapter, then Sonic Jam on that console.
+      The achievement only holds for a brief moment; it is caught because every frame is
+      read, and the unlock card slides up in the program window.
+    </p>
+    <figure>
+      <video controls muted playsinline preload="metadata" poster="rawturn_poster.jpg">
+        <source src="rawturn_sonic_jam.mp4" type="video/mp4">
+      </video>
+      <figcaption>Sonic Jam on real hardware &mdash; &ldquo;It's A Time Paradox!&rdquo; unlocks</figcaption>
+    </figure>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      RAW-TURN is free to use. The source is public to read and audit, but it is not open
+      source &mdash; see the
+      <a href="https://github.com/liquid-wq/raw-turn/blob/main/LICENSE">license</a>.
+      RAW-TURN builds on the SAROO firmware by tpunix and is not affiliated with it.
+    </p>
+    <p>There are counterparts for the Mega Drive and the NES too: <a href="https://liquid-wq.github.io/mega-raw/">MEGA-RAW</a> and <a href="https://liquid-wq.github.io/raw-nes/">RAW-NES</a>.</p>
+    <p>Built by <a href="https://github.com/liquid-wq">Liqui</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>

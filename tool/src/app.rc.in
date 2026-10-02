@@ -1,0 +1,9 @@
+// ERZEUGT die Ressourcendatei -- nicht direkt bearbeiten, sondern app.rc.in.
+//
+// Das Programmsymbol ist dieselbe Katze wie in mega-raw. Es steckt als
+// Windows-Ressource in der Exe, damit das Programm eine einzelne Datei
+// bleibt. Kennung 1 wird in main.cpp fuer Fenster und Taskleiste geladen.
+//
+// Der Pfad wird von CMake eingesetzt, weil windres relative Pfade nicht
+// verlaesslich gegen den Ort dieser Datei aufloest.
+1 ICON "@APP_ICON_PFAD@"

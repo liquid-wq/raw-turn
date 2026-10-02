@@ -1,0 +1,58 @@
+RAW-TURN — License, version 1, effective 2 October 2026
+Copyright (c) 2025-2026 Liqui (github.com/liquid-wq). All rights reserved.
+
+The source code of RAW-TURN is published so that it can be read, audited and
+learned from. It is NOT free software and NOT open source. Publication grants
+no right to pass the code on, or to build anything from it that other people
+receive.
+
+PERMITTED
+  1. Use the compiled program, privately or commercially.
+  2. Read and study the source code.
+  3. Modify the source code for your own private use.
+  4. Quote short excerpts for teaching, reviews or bug reports, with
+     attribution.
+  5. Link to this repository and to its releases.
+
+NOT PERMITTED WITHOUT PRIOR WRITTEN PERMISSION
+  6. Redistributing the source code, in whole or in substantial part,
+     modified or unmodified.
+  7. Publishing or otherwise passing on derivative works, forks or ports,
+     including ports to other hardware or platforms.
+  8. Redistributing the compiled program or SAROO firmware patched with it,
+     including mirrors, bundles, installers and repackaged archives.
+  9. Reverse engineering, decompiling or disassembling the compiled program,
+     and extracting code or data embedded in it.
+ 10. Distributing or selling any device, product or service that contains
+     this code or a work derived from it.
+ 11. Removing or altering copyright notices, the version string or the
+     "about the cat" text.
+
+Item 3 ends at your own machine. As soon as anything you built from this code
+reaches another person, items 6 to 10 apply. Pass on the link to this
+repository or its releases, not a copy.
+
+Permission for any of the above may be requested through GitHub Issues on
+github.com/liquid-wq/raw-turn. Each request is decided individually. No
+permission is implied until it is given in writing.
+
+The permissions in items 1 to 5 end automatically if you breach this license.
+
+THIRD-PARTY COMPONENTS
+This program includes and builds upon third-party software that carries its
+own licenses. Those licenses govern those components, not this one. See
+THIRD-PARTY-NOTICES.txt, which is distributed with every release.
+
+Nothing in this license restricts rights that applicable law grants you and
+that cannot be excluded by agreement.
+
+NO WARRANTY
+THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT
+OF OR IN CONNECTION WITH THE PROGRAM OR ITS USE.
+
+RAW-TURN patches the SAROO firmware on your SD card. It backs up the
+originals first and can restore them, but you use it at your own risk.
+RAW-TURN is not affiliated with RetroAchievements, the SAROO project or Sega.

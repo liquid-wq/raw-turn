@@ -1,0 +1,63 @@
+/*
+ * Sega Saturn USB flash cart ROM linker script
+ * Anders Montonen, 2012
+ *
+ * Based on Bart Trzynadlowski's Custom Sega Saturn Linker Script
+ * Public domain
+ *
+ */
+
+/* RAW-TURN: Bildtakt-Code in der Kartusche.
+ *
+ * Wie ldscript, aber .wramtext und .wramdata liegen mit im Kartuschenspeicher.
+ * Das Work RAM gehoert vollstaendig dem Spiel; manche Spiele belegen auch
+ * dessen oberes Ende selbst. So laeuft die Firmware mit dem offiziellen FPGA
+ * der SAROO.
+ *
+ * _wram_start = _wram_end: Laenge 0, ra_wram_code_kopieren() kopiert nichts. */
+OUTPUT_FORMAT("elf32-sh")
+SECTIONS
+{
+	. = 0x02000000;
+    __ip_start = .;
+    .text :
+    {
+        KEEP(*(.sysid))
+        *(.text)
+        *(.wramtext)
+    }
+	.rodata :
+	{
+		*(.rodata);
+	}
+    .data :
+    {
+        *(.data);
+    }
+
+    _wram_start = .;
+    _wram_end = .;
+    _wram_lma = .;
+
+    __ip_end = .;
+
+    __ip_len = __ip_end - __ip_start;
+
+    .bss :
+	{
+	    __bss_start = .;
+		*(.bss);
+		*(.wramdata);
+		. = ALIGN(4);
+		__stack_start = .;
+		. = . + 16384;
+		__stack_end = .;
+    	__bss_end = .;
+	}
+
+	. = __ip_start + 0x20000-4;
+	.pad_128k :
+	{
+		LONG(0);
+	}
+}

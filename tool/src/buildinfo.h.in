@@ -1,0 +1,15 @@
+// ERZEUGT AUS buildinfo.h.in -- nicht direkt bearbeiten.
+//
+// Die Build-Nummer steht als einzige Quelle in CMakeLists.txt (BUILD_NR) und
+// landet von dort sowohl hier als auch im DATEINAMEN des Programms.
+#pragma once
+
+namespace buildinfo {
+
+constexpr int kBuild = @BUILD_NR@;
+constexpr const char* kBuildDate = "@BUILD_DATUM@";
+
+// "Build 4 (2026-09-12) Sep 12 2026 11:59:03"
+const char* string();
+
+}  // namespace buildinfo
